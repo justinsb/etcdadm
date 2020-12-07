@@ -1,0 +1,44 @@
+name: Bazel
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.4.0/bazelisk-linux-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazelisk"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazelisk"
+
+    - name: Build etcd-manager
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazelisk" build //...
+      working-directory: ./etcd-manager/
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.4.0/bazelisk-linux-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazelisk"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazelisk"
+
+    - name: Test etcd-manager
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazelisk" test //... --test_output=streamed
+      working-directory: ./etcd-manager/
