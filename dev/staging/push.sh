@@ -37,6 +37,17 @@ if [[ -z "${ARTIFACT_LOCATION:-}" ]]; then
   exit 1
 fi
 
+if [[ -n "${INSTALL_BAZEL_VERSION:-}" ]]; then
+  INSTALLER="bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh"
+  DOWNLOAD_URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/${INSTALLER}"
+  echo "Downloading bazel from $DOWNLOAD_URL"
+  curl -L --output "/tmp/${INSTALLER}" "${DOWNLOAD_URL}"
+  chmod +x "/tmp/${INSTALLER}"
+  "/tmp/${INSTALLER}"
+  # remove the installer, we no longer need it
+  rm "/tmp/${INSTALLER}"
+fi
+
 # Build and upload etcdadm binary
 make etcdadm
 gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}/${VERSION}/etcdadm
